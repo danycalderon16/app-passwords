@@ -12,11 +12,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <ImageView
+            android:id="@+id/imgLogo"
             android:layout_width="0dp"
             android:layout_height="24dp"
             android:layout_weight=".1"
             android:src="@drawable/ic_unknown"/>
         <TextView
+            android:id="@+id/tv_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".45"
@@ -25,6 +27,7 @@
             android:textStyle="bold"
             android:text="Name account"/>
         <TextView
+            android:id="@+id/tv_email"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".45"

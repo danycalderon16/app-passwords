@@ -3,6 +3,8 @@ package com.dacv.app_passwords.activities;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,8 +15,11 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.dacv.app_passwords.R;
+import com.dacv.app_passwords.adapters.AdapterAccount;
 import com.dacv.app_passwords.databinding.ActivityMainBinding;
 import com.dacv.app_passwords.fragments.NewAccountFragment;
+import com.dacv.app_passwords.models.Account;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -22,15 +27,26 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+
+import static com.dacv.app_passwords.utils.Util.*;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding mainBinding;
     private GoogleSignInAccount account;
 
+    private AdapterAccount adapterAccount;
+    private RecyclerView recyclerView;
 
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private DocumentReference usersRef;
     private FirebaseAuth auth;
     private FirebaseUser user;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +54,11 @@ public class MainActivity extends AppCompatActivity {
         mainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mainBinding.getRoot());
 
+
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+
+        usersRef = db.collection(USERS).document(user.getUid());
 
         account = GoogleSignIn.getLastSignedInAccount(this);
 
@@ -57,6 +76,38 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show(getSupportFragmentManager(), "tag");
             }
         });
+
+        setRecyclerView();
+    }
+
+    private void setRecyclerView() {
+        final CollectionReference ref = usersRef.collection(ACCOUNTS);
+        Query query = ref.orderBy(NAME, Query.Direction.ASCENDING);
+
+        FirestoreRecyclerOptions<Account> options = new FirestoreRecyclerOptions
+                .Builder<Account>()
+                .setQuery(query, Account.class)
+                .build();
+        adapterAccount = new AdapterAccount(options, this);
+
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapterAccount);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapterAccount.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapterAccount.stopListening();
     }
 
     @Override
