@@ -6,8 +6,10 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -82,17 +84,29 @@ public class MainActivity extends AppCompatActivity {
 
     private void setRecyclerView() {
         final CollectionReference ref = usersRef.collection(ACCOUNTS);
-        Query query = ref.orderBy(NAME, Query.Direction.ASCENDING);
+        Query query = ref.orderBy("name", Query.Direction.ASCENDING);
 
         FirestoreRecyclerOptions<Account> options = new FirestoreRecyclerOptions
                 .Builder<Account>()
                 .setQuery(query, Account.class)
                 .build();
-        adapterAccount = new AdapterAccount(options, this);
-
+        adapterAccount = new AdapterAccount(options, this, new AdapterAccount.addClickListener() {
+            @Override
+            public void onItemClick(Account account, int position) {
+                String id = adapterAccount.getSnapshots().getSnapshot(position).getId();
+                Log.i("#################3",id);
+                Intent intent = new Intent(MainActivity.this, AccountActivity.class);
+                intent.putExtra(UID, id);
+                intent.putExtra(ACCOUNT, account);
+                // To retrieve object in second Activity
+                getIntent().getSerializableExtra("MyClass");
+                startActivity(intent);
+            }
+        });
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
+        recyclerView.setItemAnimator(null);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapterAccount);
 
@@ -122,9 +136,31 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if(id == R.id.action_logout){
-            logOut();
+            showConfirmDeleteDialog();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public void showConfirmDeleteDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(true);
+        builder.setMessage("¿Desea cerrar sesión?");
+        builder.setPositiveButton("Sí",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        logOut();
+                    }
+                });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void showInfoDialog() {

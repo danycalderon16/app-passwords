@@ -34,7 +34,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="8dp"
                 android:layout_toEndOf="@id/fullscreen_dialog_close"
-                android:text="Nuevo Prestamo"
+                android:text="Nueva Cuenta"
                 android:textColor="@android:color/white"
                 android:textSize="20sp" />
             <TextView
@@ -140,6 +140,7 @@
                     android:background="@color/white"
                     android:maxLines="1"
                     android:textColor="@color/text"
+                    android:inputType="textPassword"
                     android:textCursorDrawable="@drawable/color_cursor"
                     android:hint="Clave" />
             </com.google.android.material.textfield.TextInputLayout>

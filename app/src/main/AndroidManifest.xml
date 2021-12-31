@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dacv.app_passwords">
+
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
@@ -10,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Apppasswords">
+        <activity android:name=".activities.AccountActivity"></activity>
         <activity
             android:name=".activities.LoginActivity"
             android:exported="true">
@@ -21,8 +23,7 @@
         </activity>
         <activity
             android:name=".activities.MainActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true"></activity>
     </application>
 
 </manifest>

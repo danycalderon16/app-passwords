@@ -1,6 +1,7 @@
 package com.dacv.app_passwords.adapters;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -10,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -23,25 +23,35 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 import org.jetbrains.annotations.NotNull;
 
+import static com.dacv.app_passwords.utils.Util.getLogo;
+
 public class AdapterAccount extends FirestoreRecyclerAdapter<Account, AdapterAccount.ViewHolder> {
 
     private Activity activity;
+    private addClickListener listener;
 
     public AdapterAccount(@NonNull @NotNull FirestoreRecyclerOptions<Account> options,
-                          Activity activity) {
+                          Activity activity,
+                          addClickListener listener) {
         super(options);
         this.activity = activity;
+        this.listener = listener;
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull @NotNull AdapterAccount.ViewHolder holder, int position, @NonNull @NotNull Account model) {
-        holder.imLogo.setImageDrawable(ContextCompat.getDrawable(activity,R.drawable.ic_google));
+    protected void onBindViewHolder(@NonNull @NotNull AdapterAccount.ViewHolder holder,
+                                    int position, @NonNull @NotNull Account model) {
+
+        Drawable logo = getLogo(model.getName().toLowerCase(),activity);
+
+        holder.imLogo.setImageDrawable(logo);
+
         holder.tvName.setText(model.getName());
         holder.tvEmail.setText(model.getEmail());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("%%%%%%%%%%%%","setOnClickListener");
+                listener.onItemClick(model, position);
             }
         });
     }

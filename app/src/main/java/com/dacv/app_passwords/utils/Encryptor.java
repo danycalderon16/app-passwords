@@ -55,7 +55,7 @@ public class Encryptor {
     }
 
     // we need the same password, salt and iv to decrypt it
-    private static String decrypt(String cText, String password) throws Exception {
+    public static String decrypt(String cText, String password) throws Exception {
 
         byte[] decode = Base64.getDecoder().decode(cText.getBytes(UTF_8));
 

@@ -1,11 +1,20 @@
 package com.dacv.app_passwords.models;
 
-public class Account {
+import java.io.Serializable;
+
+public class Account  implements Serializable {
 
     private String name;
     private String email;
     private String pass;
     private String key;
+
+    public static class ChildClass implements Serializable {
+
+        public ChildClass() {}
+    }
+
+    public Account(){}
 
     public Account(String name, String email, String pass, String key) {
         this.name = name;
