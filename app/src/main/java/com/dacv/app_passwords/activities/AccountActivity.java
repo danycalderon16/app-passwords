@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.hardware.biometrics.BiometricManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -28,6 +29,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executor;
 
 
@@ -57,6 +60,8 @@ public class AccountActivity extends AppCompatActivity {
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
 
+    private Timer timer;
+
     @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +79,7 @@ public class AccountActivity extends AppCompatActivity {
             uid = bundle.getString(UID);
             account = (Account) bundle.getSerializable(ACCOUNT);
         }
+        setToolbar();
 
         accountBinding.tvEmail.setText(account.getEmail());
 
@@ -123,12 +129,16 @@ public class AccountActivity extends AppCompatActivity {
                     @NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
                 try {
-                    String inputKey = generateKey(accountBinding.keyWord.getEditText().getText().toString());
+                    String inputKey = accountBinding.keyWord.getEditText().getText().toString();
                     String passwordDecrypted = decrypt(passwordEncrypted, inputKey);
-                    //Toast.makeText(getApplicationContext(),
-                   //     "Authentication succeeded!: " + passwordDecrypted, Toast.LENGTH_SHORT).show();
-                    Log.d("#############", passwordEncrypted+" - "+inputKey);
                     accountBinding.tvPass.setText(passwordDecrypted);
+                    timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            accountBinding.tvPass.setText("");
+                        }
+                    },3000);
                 } catch (Exception e) {
                     Log.d("#############", "Error");
                     e.printStackTrace();
@@ -152,6 +162,26 @@ public class AccountActivity extends AppCompatActivity {
 
     }
 
+    private void setToolbar() {
+
+        setSupportActionBar(accountBinding.toolbarAccount);
+        accountBinding.toolbarAccount.setTitle(account.getName());
+        this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
+        this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                //goMain(this);
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void checkKey() {
         DocumentReference docRef = db.collection(USERS)
                 .document(user.getUid())
@@ -169,8 +199,10 @@ public class AccountActivity extends AppCompatActivity {
                     //Log.d("#############", inputKey);
                     String keyEncrypted = generateKey(inputKey);
                     //Log.d("#############", keyEncrypted);
-                    if (key.equals(keyEncrypted)) {
+                    if (key.equals(keyEncrypted))
                         authentication();
+                    else{
+                        accountBinding.keyWord.setError("Clave incorrecta");
                     }
 
                 } else {

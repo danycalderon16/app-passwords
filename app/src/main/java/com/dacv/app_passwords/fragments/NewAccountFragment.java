@@ -108,7 +108,7 @@ public class NewAccountFragment extends DialogFragment implements View.OnClickLi
         String key_encrypted = generateKey(key_word);
         String pass_encrypted = "";
         try {
-            pass_encrypted = encrypt(account_pass.getBytes(), key_encrypted);
+            pass_encrypted = encrypt(account_pass.getBytes(), key_word);
         } catch (Exception e) {
             e.printStackTrace();
         }
